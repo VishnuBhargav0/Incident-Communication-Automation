@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Incident Communication</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            animation: fadeIn 1s ease-in-out;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 40px;
+            font-size: 1.8em;
+        }
+
+        h1 {
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2c3e50;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #2c3e50;
+        }
+        input, textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #2c3e50;
+        }
+        input:focus, textarea:focus {
+            border-color: #2c3e50;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+        table, th, td {
+            border: 1px solid #bdc3c7;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            color: #2c3e50;
+        }
+        th {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        tr:hover {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        .section {
+            margin-bottom: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .alert {
+            color: #e74c3c;
+        }
+        .scrollable-table {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .content {
+            flex: 1;
+        }
+        .sidebar {
+            width: 40%;
+            margin-left: 20px;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .gradient-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            z-index: -1;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .loader {
+            width: fit-content;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 30px;
+            overflow: hidden;
+            align-items: center;
+            max-width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+
+        }
+        .loader::before {
+            content: "- creating the tickets -";
+            color: #e0eafc;
+            align-self: center;
+            background-position: center;
+            background: linear-gradient(90deg,#0000 calc(100%/3),#000 0 calc(2*100%/3),#0000 0) left/300% 100%;
+            animation: l23 2s infinite;
+        }
+
+@keyframes l23{
+  50% {background-position: center;}
+  100%{background-position: right ;}
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+            <!-- Form to set Google Sheets parameters -->
+            <div id="read-emails-section" class="section">
+                <h1>Incident Communication Automation</h1>
+                <h2>Please give the details of the Google sheet. </h2>
+                <form action="/set-params/" method="post">
+                    <label for="document_name">Document Name:</label>
+                    <input type="text" id="document_name" name="document_name" required><br>
+                    <label for="worksheet_number">Worksheet Number:</label>
+                    <input type="number" id="worksheet_number" name="worksheet_number" required><br>
+                    <label for="email_col_index">Email Column Index:</label>
+                    <input type="number" id="email_col_index" name="email_col_index" required><br>
+                    <button type="submit">Set Parameters</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="display-results-section">
+            {% if results %}
+                <div class="scrollable-table" >
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>results</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                    <tr>
+                                        <td>{{ result }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            {% endif %}
+        </div>
+        
+        <div id="working-on-it-section" class="hidden">
+            <div class="loader"></div>
+            <h2>This can take upto 30 seconds based on the number of tickets.
+                Please do not close or reload/refresh this tab.
+            </h2>
+        </div>
+        
+        <!-- Form to create a ticket -->
+        <div id="create-ticket-section" class="section sidebar hidden">
+            <h2>Create Ticket</h2>
+            <form id="ticket-form" action="/create-ticket/" method="post">
+                <label for="req_email">Request Email:</label>
+                <input type="email" id="req_email" name="req_email" required><br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required><br>
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required><br>
+                <label for="tags">Tags (comma-separated):</label>
+                <input type="text" id="tags" name="tags" required><br>
+                <label for="body">Body:</label>
+                <textarea id="body" name="body" required></textarea><br>
+                <label for="num_placeholders">Number of Placeholders:</label>
+                <input type="number" id="num_placeholders" name="num_placeholders" min="0" required><br>
+                <div id="placeholder-inputs"></div>
+                <button type="submit">Create Ticket</button>
+            </form>
+        </div>
+
+        <!-- Display assignee list -->
+        <div id="assignee-section" class="section sidebar hidden">
+            <h2>Assignee List</h2>
+            <div class="scrollable-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Assignee Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignee in assignee_list %}
+                            <tr>
+                                <td>{{ assignee }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            {% if assignee_list %}
+                document.getElementById('read-emails-section').classList.add('hidden');
+                document.getElementById('assignee-section').classList.remove('hidden');
+                document.getElementById('create-ticket-section').classList.remove('hidden');
+            {% endif %}
+
+            {% if results %}
+                document.getElementById('read-emails-section').classList.add('hidden');
+                document.getElementById('assignee-section').classList.add('hidden');
+                document.getElementById('create-ticket-section').classList.add('hidden');
+                document.getElementById('working-on-it-section').classList.add('hidden');
+            {% endif %}
+
+            document.getElementById('num_placeholders').addEventListener('input', function() {
+                var numPlaceholders = parseInt(this.value);
+                var placeholderInputsDiv = document.getElementById('placeholder-inputs');
+                placeholderInputsDiv.innerHTML = '';
+
+                for (var i = 1; i <= numPlaceholders; i++) {
+                    var placeholderKeyLabel = document.createElement('label');
+                    placeholderKeyLabel.textContent = `Key for Placeholder ${i}:`;
+                    placeholderInputsDiv.appendChild(placeholderKeyLabel);
+
+                    var placeholderKeyInput = document.createElement('input');
+                    placeholderKeyInput.type = 'text';
+                    placeholderKeyInput.name = `placeholder_key_${i}`;
+                    placeholderKeyInput.required = true;
+                    placeholderInputsDiv.appendChild(placeholderKeyInput);
+
+                    var placeholderIndexLabel = document.createElement('label');
+                    placeholderIndexLabel.textContent = `Index for Placeholder ${i}:`;
+                    placeholderInputsDiv.appendChild(placeholderIndexLabel);
+
+                    var placeholderIndexInput = document.createElement('input');
+                    placeholderIndexInput.type = 'number';
+                    placeholderIndexInput.name = `placeholder_index_${i}`;
+                    placeholderIndexInput.required = true;
+                    placeholderInputsDiv.appendChild(placeholderIndexInput);
+                }
+            });
+
+            document.getElementById('ticket-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                document.getElementById('create-ticket-section').classList.add('hidden');
+                document.getElementById('assignee-section').classList.add('hidden');
+                document.getElementById('working-on-it-section').classList.remove('hidden');
+
+                var numPlaceholders = parseInt(document.getElementById('num_placeholders').value);
+                var placeholders = {};
+
+                for (var i = 1; i <= numPlaceholders; i++) {
+                    var key = document.querySelector(`input[name="placeholder_key_${i}"]`).value;
+                    var index = document.querySelector(`input[name="placeholder_index_${i}"]`).value;
+                    placeholders[key] = parseInt(index);
+                }
+
+                var placeholdersInput = document.createElement('input');
+                placeholdersInput.type = 'hidden';
+                placeholdersInput.name = 'placeholders';
+                placeholdersInput.value = JSON.stringify(placeholders);
+                this.appendChild(placeholdersInput);
+
+                this.submit();
+            });
+        });
+    </script>
+</body>
+</html>
+
+</html>
