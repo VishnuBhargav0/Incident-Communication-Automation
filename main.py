@@ -14,11 +14,10 @@ scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/au
 ZENDESK_URL = 'https://hevodata.zendesk.com/api/v2/tickets.json'
 
 #credentials of the service acoount that reads from the Google sheet. 
-
 CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name('key.json', scope)
 templates = Jinja2Templates(directory="templates")
 
-# Set up logging
+# logging is set up but not completly implemented, using print statements for logging. 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -35,18 +34,16 @@ user_inputs = {
     )
 
 def fetch_user_id(email, auth):
-    print("funcation called.")
+    #takes in the email of the requestor and will return their internal zendesk user_id.
+    #this is required as the api only supports adding public comment author by their user_id
     search_url = f'https://hevodata.zendesk.com/api/v2/users/search.json?query=email:{email}'
     headers = {'Content-Type': 'application/json'}
-    print("making this request: ",search_url,headers, auth)
     response = requests.get(search_url, headers=headers, auth=auth)
     user_data = response.json()
-    print(user_data)
     return user_data['users'][0]['id']
 
 def replace_placeholders(body, placeholders, row):
     text = '__placeholder__'
-    
     for i in range(len(placeholders)):
         key = text + str(i+1)
         value = list(placeholders.keys())[i]
@@ -57,6 +54,7 @@ def replace_placeholders(body, placeholders, row):
         key = text + str(i+1)
         value = row[list(placeholders.values())[i]]
         body = body.replace(key, value)
+    
     return body
 
 def create_ticket(assignee_email, subject, req_email, tags, body, password, user_id):
@@ -89,7 +87,7 @@ def create_ticket(assignee_email, subject, req_email, tags, body, password, user
 
     headers = {"Content-Type": "application/json"}
     
-    return {"status": "success", "message": "Ticket created successfully. Ticket ID: 12345"}
+    #return {"status": "success", "message": "Ticket created successfully. Ticket ID: 12345"}
     try:
         logger.info(f"Creating ticket with data:")
         print('--------------------------')
@@ -98,7 +96,9 @@ def create_ticket(assignee_email, subject, req_email, tags, body, password, user
         print("auth: ", req_email, password)
         print(data)
         print('--------------------------')
-        response = requests.post(ZENDESK_URL, headers=headers, json=data, auth=(req_email, password),timeout=15)  # Increase timeout as needed
+        response = requests.post(ZENDESK_URL, headers=headers, json=data, auth=(req_email, password),timeout=15) 
+        # request read timeout is set as 15 seconds, if we do not get a response back in 15 seconds, the request will be terminated and response will be assumed as 400.
+        
         print('the response for the above is:',response.json())
         return {"status": "success", "message": f"Ticket created successfully. Ticket ID: {response.json()}"}
     
@@ -154,23 +154,20 @@ async def create_ticket_endpoint(
     iteration = 0
     
     for row in rows:
-        if iteration%50 == 0:
+        #The ticket createion loop runs for 50 iterations, and then waits for 20 seconds to not go overboard with zendesk API rate limits. 
+        if iteration==0:
+            pass
+
+        elif iteration%50 == 0:
             time.sleep(20)
-        replaced_body = replace_placeholders(body,placeholders_dict,row)
+        
+        replaced_body = replace_placeholders(body,placeholders_dict,row) #replaced the placeholders in the body.txt
         response = create_ticket(assignee_email=row[user_inputs["email_col_index"]], subject=subject, req_email=req_email, tags=tags.split(','), body=replaced_body, password=password, user_id = user_id)
         responses.append({"email": row[user_inputs["email_col_index"]], "response": response})
         iteration = iteration+1
+
     return templates.TemplateResponse("index.html", {"request": request, "results": responses})
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-
-
-"""
-Hi __placeholder_value__1, Please find the affected pipelines:
--------------------------
-__placeholder__2: __placeholder_value__2
--------------------------
-"""
