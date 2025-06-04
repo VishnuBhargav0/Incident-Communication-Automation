@@ -112,12 +112,14 @@ def read_gsheet_and_get_col_values(DOCUMENT_NAME, credentials, worksheet_number,
     spreadsheet = gc.open(DOCUMENT_NAME)
     worksheet = spreadsheet.get_worksheet(worksheet_number)
     values = worksheet.get_all_values()
+    # Skip the first row (headers)
+    data_rows = values[1:]
     assignee_list = []
 
-    for row in values:
+    for row in data_rows:
         assignee_list.append(row[email_col_index])
 
-    return [assignee_list,values]
+    return [assignee_list, data_rows]
 
 @app.post("/set-params/", response_class=HTMLResponse)
 async def set_params(
