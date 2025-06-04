@@ -45,6 +45,7 @@ __placeholder__1: __placeholder_value__1
 ####
 ```
 __placeholder_value__2
+Key for Placeholder can be any random string in this case. 
 ```
 
 ### Usage

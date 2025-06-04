@@ -73,6 +73,7 @@ def create_ticket(assignee_email, subject, req_email, tags, body, password, user
     comment = {}
     comment['author_id'] = user_id
     comment['body'] = str(body)
+    comment['public'] = False # Make it an internal note, making it true will make it a public comment.
 
     data = {
         "ticket": {
@@ -134,6 +135,8 @@ async def set_params(
     values = read_gsheet_and_get_col_values(user_inputs["DOCUMENT_NAME"], CREDENTIALS, user_inputs["worksheet_number"], user_inputs["email_col_index"])
     assignee_list = values[0]
     rows = values[1]
+    print(assignee_list)
+    print(request)
     return templates.TemplateResponse("index.html", {"request": request, "assignee_list": assignee_list})
 
 @app.post("/create-ticket/", response_class=HTMLResponse)
@@ -171,3 +174,4 @@ async def create_ticket_endpoint(
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
